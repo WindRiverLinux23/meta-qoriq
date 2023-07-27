@@ -19,13 +19,15 @@ COMPATIBLE_MACHINE = "(qoriq)"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PLATFORM = "${MACHINE}"
+SDK_MACHINE ?= "${MACHINE}"
+
+PLATFORM = "${SDK_MACHINE}"
 PLATFORM:ls1088ardb-pb = "ls1088ardb"
 PLATFORM:lx2160ardb-rev2 = "lx2160ardb"
 PLATFORM_ADDITIONAL_TARGET ??= ""
 PLATFORM_ADDITIONAL_TARGET:ls1012afrwy = "ls1012afrwy_512mb"
 
-RCW_FOLDER ?= "${MACHINE}"
+RCW_FOLDER ?= "${SDK_MACHINE}"
 RCW_FOLDER:ls1088ardb-pb = "ls1088ardb"
 RCW_FOLDER:lx2160ardb = "lx2160ardb_rev2"
 RCW_FOLDER:lx2160ardb-rev2 = "lx2160ardb_rev2"
@@ -63,7 +65,7 @@ LD[unexport] = "1"
 
 EXTRA_OEMAKE += "HOSTCC='${BUILD_CC} ${BUILD_CPPFLAGS} ${BUILD_CFLAGS} ${BUILD_LDFLAGS}'"
 EXTRA_OEMAKE += "\
-    ${@bb.utils.contains('COMBINED_FEATURES', 'optee', 'BL32=${RECIPE_SYSROOT}${nonarch_base_libdir}/firmware/tee_${MACHINE}.bin SPD=opteed', '', d)} \
+    ${@bb.utils.contains('COMBINED_FEATURES', 'optee', 'BL32=${RECIPE_SYSROOT}${nonarch_base_libdir}/firmware/tee_${SDK_MACHINE}.bin SPD=opteed', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'secure', 'TRUSTED_BOARD_BOOT=1 CST_DIR=${RECIPE_SYSROOT_NATIVE}/usr/bin/cst', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'arm-cot', 'GENERATE_COT=1 MBEDTLS_DIR=${S}/mbedtls', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'fuse', 'fip_fuse FUSE_PROG=1 FUSE_PROV_FILE=fuse_scr.bin', '', d)} \
@@ -105,7 +107,7 @@ do_compile() {
         qspi)
             rcwimg="${RCWQSPI}${RCW_SUFFIX}"
             uefiboot="${UEFI_QSPIBOOT}"
-            if [ -n "${SECURE_EXTENTION}" ] && [ "${MACHINE}" = ls1046ardb ]; then
+            if [ -n "${SECURE_EXTENTION}" ] && [ "${SDK_MACHINE}" = ls1046ardb ]; then
                 rcwimg="RR_FFSSPPPH_1133_5559/rcw_1600_qspiboot_sben.bin"
             fi
             ;;

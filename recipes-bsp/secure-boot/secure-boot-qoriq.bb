@@ -3,16 +3,18 @@ SECTION = "bootloaders"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0-only;md5=801f80980d171dd6425610833a22dbe6"
 
+SDK_MACHINE ?= "${MACHINE}"
+
 python __anonymous () {
     board="ls1012afrwy ls1012ardb ls1021atwr ls1028ardb ls1043ardb ls1046afrwy ls1046ardb ls1088ardb ls1088ardb-pb ls2088ardb lx2160ardb-rev2 lx2162aqds"
-    m = d.getVar("MACHINE")
+    m = d.getVar("SDK_MACHINE")
     if m not in board:
         raise bb.parse.SkipRecipe("This platform not exit secure-boot manifest")
 }
 
 SRC_URI = "file://create_secure_boot_image.sh \
     file://memorylayout.cfg \
-    file://${MACHINE}.manifest \
+    file://${SDK_MACHINE}.manifest \
 "
 
 inherit deploy
@@ -49,7 +51,7 @@ do_compile[noexec] = "1"
 do_deploy () {
     cd ${RECIPE_SYSROOT_NATIVE}/usr/bin/cst
     cp ${S}/*.sh ./
-    cp ${S}/${MACHINE}.manifest ./
+    cp ${S}/${SDK_MACHINE}.manifest ./
     cp ${S}/memorylayout.cfg ./
     if [ ${SECURE} = "true" ]; then
         if [ ! -f srk.pri ] && [ -f ${DEPLOY_DIR_IMAGE}/srk.pri ]; then
@@ -61,7 +63,7 @@ do_deploy () {
     fi
 
     for d in ${BOOT_TYPE}; do
-        ./create_secure_boot_image.sh -m ${MACHINE} -t ${d} -d . -s ${DEPLOY_DIR_IMAGE} -o ${SECURE}
+        ./create_secure_boot_image.sh -m ${SDK_MACHINE} -t ${d} -d . -s ${DEPLOY_DIR_IMAGE} -o ${SECURE}
     done
 
 }
