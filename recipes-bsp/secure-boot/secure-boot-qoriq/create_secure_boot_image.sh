@@ -301,16 +301,6 @@ generate_qoriq_composite_firmware() {
         fi
     fi
 
-    # linux kernel image
-    if [ "$2" = "qspi" ] && [ "$1" = "ls1021atwr" -o "$1" = "ls1043aqds" ]; then
-        echo no itb in $1 composite firmware as $1 $2 flash no more than 16MiB
-    elif [ "$2" = "nor" -o "$2" = "qspi" -o "$2" = "xspi" -o "$2" = "nand" ]; then
-        val=`expr $(echo $(($nor_kernel_offset))) / 1024`
-        dd if=$DEPLOYDIR/${kernel_itb} of=$fwimg bs=1K seek=$val
-    elif [ "$2" = "sd" -o "$2" = "emmc" ]; then
-        dd if=$DEPLOYDIR/${kernel_itb} of=$fwimg bs=512 seek=$sd_kernel_offset
-    fi
-
     if [ "$2" = "sd" -o "$2" = "emmc" ]; then
         tail -c +4097 $fwimg > $fwimg.img && rm $fwimg
     else
